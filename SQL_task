@@ -1,0 +1,92 @@
+CREATE DATABASE bug_tracking;
+show databases;
+USE bug_tracking;
+
+
+
+/* Create tables */
+
+CREATE TABLE people_table
+(
+person_id int NOT NULL AUTO_INCREMENT,
+name varchar (255),
+email varchar (255),
+phone varchar (255),
+PRIMARY KEY (person_id)
+);
+
+CREATE TABLE projects_table
+(
+project_id int NOT NULL AUTO_INCREMENT,
+project_name varchar (255),
+project_owner_id int NOT NULL,
+PRIMARY KEY (project_id),
+FOREIGN KEY (project_owner_id) REFERENCES people_table (person_id)
+);
+
+
+CREATE TABLE bugs_table
+(
+bug_id int NOT NULL AUTO_INCREMENT,
+project_id int,
+status varchar (255),
+creator_id int,
+assignee_id int,
+priority varchar (255),
+severity varchar (255),
+PRIMARY KEY (bug_id),
+FOREIGN KEY (creator_id) REFERENCES people_table (person_id),
+FOREIGN KEY (assignee_id) REFERENCES people_table (person_id)
+);
+
+ 
+
+/* Fill the tables with data */
+
+INSERT INTO people_table (name, email, phone)
+VALUES 
+('Charles Babbage','babbage@email.com','1010'),
+('James Cook','cook@email.com','1011'),
+('John McCarthy','mccarthy@email.com','1012'),
+('John Smith','smith@email.com','1013'),
+('Tony Johnson','johnson@email.com','1014'),
+('Allan Poe','poe@email.com','1015'),
+('Mark Twain','twain@email.com','1016'),
+('Scott Fitzgerald','fitzgerald@email.com','1017'),
+('Walt Whitman','whitman@email.com','1018');
+
+
+INSERT INTO projects_table (project_name, project_owner_id)
+VALUES 
+('Calculator', 1),
+('Maps',2),
+('Cloud',3);
+
+INSERT INTO bugs_table (project_id, status, creator_id, assignee_id, priority, severity)
+VALUES
+(1,'New',4,6,'P2','S2'),
+(1,'Open',4,7,'P1','S4'),
+(2,'Open',4,8,'P4','S4'),
+(2,'Verified',4,8,'P2','S3'),
+(3,'Open',5,9,'P1','S4'),
+(3,'Verified',5,9,'P2','S3');
+
+
+
+/* Select bugs with priority P1 and severity S4 */
+
+SELECT bug_id, status
+FROM bugs_table
+WHERE priority='P1' and severity= 'S4';
+
+/* Show contacts of owners of projects to request clarification on important bugs (priority P1 and severity S4) */
+
+SELECT bugs_table.bug_id, bugs_table.priority, bugs_table.severity, projects_table.project_name, people_table.name, people_table.email, people_table.phone
+FROM bugs_table
+LEFT JOIN projects_table ON bugs_table.project_id = projects_table.project_id
+LEFT JOIN people_table ON projects_table.project_owner_id = people_table.person_id
+WHERE  bugs_table.severity = 'S4' AND bugs_table.priority = 'P1';
+
+/* Count rows in a table */
+
+SELECT COUNT(*) FROM bugs_table;
